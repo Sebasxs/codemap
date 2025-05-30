@@ -1,0 +1,27 @@
+{
+   "name": "markdown-exporter",
+   "version": "1.0.0",
+   "description": "A Node.js script that converts entire codebases into a single Markdown file, optimized for LLM context.",
+   "main": "index.js",
+   "type": "module",
+   "scripts": {
+      "start": "node src/index.js",
+      "test": "echo \"Error: no test specified\" && exit 1"
+   },
+   "keywords": [
+      "markdown",
+      "exporter",
+      "llm",
+      "genai"
+   ],
+   "author": "sebasxs",
+   "license": "ISC",
+   "repository": {
+      "type": "git",
+      "url": "https://github.com/sebasxs/markdown-exporter.git"
+   },
+   "bugs": {
+      "url": "https://github.com/sebasxs/markdown-exporter/issues"
+   },
+   "packageManager": "pnpm@10.13.1"
+}
