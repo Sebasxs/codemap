@@ -1,0 +1,20 @@
+{
+   "dirs": [
+      "node_modules",
+      "secrets",
+      "temp",
+      "tmp",
+      ".git",
+      "src_legacy",
+      "requirements",
+      "pending"
+   ],
+   "files": [
+      ".env",
+      ".gitignore",
+      ".prettierrc.js",
+      "eslint.config.ts",
+      "pnpm-lock.yaml",
+      "README.md"
+   ]
+}
