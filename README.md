@@ -29,23 +29,24 @@ This script solves that problem by creating a single, comprehensive Markdown fil
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/markdown-exporter.git
+   git clone https://github.com/sebasxs/markdown-exporter.git
    ```
 2. Navigate to the project directory:
    ```bash
    cd markdown-exporter
    ```
-3. Install the dependencies (though there are no external ones by default):
+3. Install the package globally:
    ```bash
-   npm install
+   npm install -g .
    ```
+   This will make the `export-md` command available in your system.
 
 ## Usage
 
-Run the script from your terminal, providing the path to the directory you want to export. The output will be a single Markdown file that you can copy and paste into your favorite LLM.
+Once installed, you can run the `export-md` command from your terminal.
 
 ```bash
-node src/index.js <inputPath> [outputPath]
+export-md <inputPath> [outputPath]
 ```
 
 -  `<inputPath>`: (Required) The path to the directory you want to export.
@@ -54,8 +55,8 @@ node src/index.js <inputPath> [outputPath]
 ### Example
 
 ```bash
-# Export the 'my-awesome-project' directory to a markdown file
-npm start ./my-awesome-project ./exports/my-awesome-project.md
+# Export the 'my-project' directory to a markdown file
+npm start ./my-project ./exports/my-project.md
 ```
 
 Now you can open the `my-awesome-project.md` file and paste its content into your LLM of choice.

@@ -4,6 +4,9 @@
    "description": "A Node.js script that converts entire codebases into a single Markdown file, optimized for LLM context.",
    "main": "index.js",
    "type": "module",
+   "bin": {
+      "export-md": "src/index.js"
+   },
    "scripts": {
       "start": "node src/index.js",
       "test": "echo \"Error: no test specified\" && exit 1"
@@ -22,6 +25,5 @@
    },
    "bugs": {
       "url": "https://github.com/sebasxs/markdown-exporter/issues"
-   },
-   "packageManager": "pnpm@10.13.1"
+   }
 }

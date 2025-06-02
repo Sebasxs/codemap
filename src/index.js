@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { readdirSync, readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { resolve, relative, join, basename, extname } from 'node:path';
 import ignore from '../ignore.json' with { type: 'json' };
