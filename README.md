@@ -56,10 +56,10 @@ export-md <inputPath> [outputPath]
 
 ```bash
 # Export the 'my-project' directory to a markdown file
-npm start ./my-project ./exports/my-project.md
+export-md ./my-project
 ```
 
-Now you can open the `my-awesome-project.md` file and paste its content into your LLM of choice.
+Now you can open the `my-project.md` file and paste its content into your LLM of choice.
 
 ## License
 
