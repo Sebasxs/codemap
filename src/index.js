@@ -59,9 +59,7 @@ const walkDirectory = dirPath => {
 
 const main = () => {
    const defaultOutput = join(
-      'C:',
-      'Users',
-      os.userInfo().username,
+      os.homedir(),
       'Downloads',
       inputPath.replace(':', '').replace(/\\/g, '_') + '.md',
    );
