@@ -5,6 +5,7 @@
       "temp",
       "tmp",
       ".git",
+      ".vscode",
       "src_legacy",
       "requirements",
       "pending"

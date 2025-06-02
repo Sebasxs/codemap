@@ -1,11 +1,11 @@
 {
-   "name": "markdown-exporter",
+   "name": "codemap",
    "version": "1.0.0",
    "description": "A Node.js script that converts entire codebases into a single Markdown file, optimized for LLM context.",
    "main": "index.js",
    "type": "module",
    "bin": {
-      "export-md": "src/index.js"
+      "codemap": "src/index.js"
    },
    "scripts": {
       "start": "node src/index.js",
@@ -21,9 +21,9 @@
    "license": "ISC",
    "repository": {
       "type": "git",
-      "url": "https://github.com/sebasxs/markdown-exporter.git"
+      "url": "https://github.com/sebasxs/codemap.git"
    },
    "bugs": {
-      "url": "https://github.com/sebasxs/markdown-exporter/issues"
+      "url": "https://github.com/sebasxs/codemap/issues"
    }
 }

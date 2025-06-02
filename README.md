@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>markdown-exporter</h1>
+  <h1>codemap</h1>
   <p>A Node.js script that converts entire codebases into a single Markdown file, optimized for LLM context.</p>
 </div>
 
@@ -29,24 +29,24 @@ This script solves that problem by creating a single, comprehensive Markdown fil
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/sebasxs/markdown-exporter.git
+   git clone https://github.com/sebasxs/codemap.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd markdown-exporter
+   cd codemap
    ```
 3. Install the package globally:
    ```bash
    npm install -g .
    ```
-   This will make the `export-md` command available in your system.
+   This will make the `codemap` command available in your system.
 
 ## Usage
 
-Once installed, you can run the `export-md` command from your terminal.
+Once installed, you can run the `codemap` command from your terminal.
 
 ```bash
-export-md <inputPath> [outputPath]
+codemap <inputPath> [outputPath]
 ```
 
 -  `<inputPath>`: (Required) The path to the directory you want to export.
@@ -56,7 +56,7 @@ export-md <inputPath> [outputPath]
 
 ```bash
 # Export the 'my-project' directory to a markdown file
-export-md ./my-project
+codemap ./my-project
 ```
 
 Now you can open the `my-project.md` file and paste its content into your LLM of choice.
