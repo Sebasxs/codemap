@@ -1,5 +1,5 @@
 {
-   "dirs": [
+   "ignore": [
       "node_modules",
       "secrets",
       "temp",
@@ -8,14 +8,14 @@
       ".vscode",
       "src_legacy",
       "requirements",
-      "pending"
-   ],
-   "files": [
+      "pending",
+      ".wwebjs_auth",
+      ".wwebjs_cache",
       ".env",
       ".gitignore",
       ".prettierrc.js",
       "eslint.config.ts",
-      "pnpm-lock.yaml",
-      "README.md"
-   ]
+      "pnpm-lock.yaml"
+   ],
+   "onlyContext": ["svg"]
 }
