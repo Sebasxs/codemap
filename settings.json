@@ -15,7 +15,8 @@
       ".gitignore",
       ".prettierrc.js",
       "eslint.config.ts",
-      "pnpm-lock.yaml"
+      "pnpm-lock.yaml",
+      "package-lock.json"
    ],
    "onlyContext": ["svg"]
 }
