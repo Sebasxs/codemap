@@ -11,12 +11,35 @@
       "pending",
       ".wwebjs_auth",
       ".wwebjs_cache",
-      ".env",
       ".gitignore",
       ".prettierrc.js",
       "eslint.config.ts",
       "pnpm-lock.yaml",
       "package-lock.json"
    ],
-   "onlyContext": ["svg"]
+   "onlyContext": [
+      "svg",
+      "png",
+      "jpg",
+      "jpeg",
+      "gif",
+      "ico",
+      "pdf",
+      "zip",
+      "tar",
+      "gz",
+      "7z",
+      "rar",
+      "exe",
+      "dll",
+      "so",
+      "dylib",
+      "bin",
+      "mp3",
+      "mp4",
+      "avi",
+      "mov",
+      "webm",
+      "webp"
+   ]
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readdirSync, readFileSync, writeFileSync, openSync, readSync, closeSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync, createWriteStream, openSync, readSync, closeSync, existsSync } from 'node:fs';
 import { resolve, relative, join, basename, extname } from 'node:path';
 import settings from '../settings.json' with { type: 'json' };
 import os from 'node:os';
@@ -17,10 +17,6 @@ if (!existsSync(basePath)) {
 const baseFolder = basename(basePath) + '/';
 const normalizePath = path => baseFolder + relative(basePath, path).replace(/\\/g, '/');
 
-const lines = [];
-
-const addSeparator = () => lines.push('', '---', '');
-
 const isTextFile = (filePath) => {
     try {
         const fd = openSync(filePath, 'r');
@@ -36,68 +32,117 @@ const isTextFile = (filePath) => {
     }
 };
 
-const addCommentBlock = (title, message) => {
-    lines.push(`> ${normalizePath(title)}`, `> ${message}`);
-    addSeparator();
+const patternToRegex = (pattern) => {
+    if (pattern.startsWith('#') || pattern.trim() === '') return null;
+    
+    let escaped = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+    
+    escaped = escaped.replace(/\?/g, '.').replace(/\*/g, '.*');
+    
+    if (escaped.endsWith('/')) {
+        escaped = escaped.slice(0, -1);
+    }
+    if (escaped.startsWith('/')) {
+        return new RegExp(`^${escaped.slice(1)}$`);
+    }
+    
+    return new RegExp(`^${escaped}$`);
 };
 
-const addBinaryPlaceholder = (filePath) => {
-    const ext = extname(filePath).replace('.', '') || 'unknown';
-    lines.push(`> ${normalizePath(filePath)}`, `> [Binary File] Type: ${ext} - Content omitted for readability`);
-    addSeparator();
-};
+const parseGitIgnore = (dirPath) => {
+    const gitIgnorePath = join(dirPath, '.gitignore');
+    if (!existsSync(gitIgnorePath)) return [];
 
-const addFileContent = filePath => {
     try {
-        const content = readFileSync(filePath, 'utf8').trim();
-        const ext = extname(filePath).replace('.', '');
-        const quotes = ext === 'md' ? '"""' : '```';
-        lines.push(`> ${normalizePath(filePath)}`, '', quotes + ext, content, quotes);
-        addSeparator();
+        const content = readFileSync(gitIgnorePath, 'utf8');
+        return content
+            .split(/\r?\n/)
+            .map(line => line.trim())
+            .map(patternToRegex)
+            .filter(regex => regex !== null);
     } catch (e) {
-        addBinaryPlaceholder(filePath);
+        return [];
     }
 };
 
-const walkDirectory = dirPath => {
-    const entries = readdirSync(dirPath, { withFileTypes: true }).sort((a, b) =>
-        a.name.localeCompare(b.name),
-    );
+const isIgnored = (name, ignorePatterns) => {
+    if (settings.ignore.includes(name)) return true;
+    if (name.startsWith('.env')) return true;
+    const sensitiveExtensions = ['.pem', '.key', '.p12', '.pfx', '.cert', '.crt', '.csr'];
 
-    if (entries.length === 0) {
-        return addCommentBlock(dirPath, 'empty directory; work in progress...');
+    if (sensitiveExtensions.some(ext => name.endsWith(ext))) return true;
+    return ignorePatterns.some(regex => regex.test(name));
+};
+
+const processDirectory = (dirPath, stream, parentIgnores = []) => {
+    const localIgnores = parseGitIgnore(dirPath);
+    const splitIgnores = [...parentIgnores, ...localIgnores];
+
+    let entries;
+    try {
+        entries = readdirSync(dirPath, { withFileTypes: true }).sort((a, b) =>
+            a.name.localeCompare(b.name),
+        );
+    } catch (e) {
+        stream.write(`> [Error reading directory: ${dirPath}]\n\n---\n\n`);
+        return 0;
     }
+
+    let fileCount = 0;
 
     for (const entry of entries) {
+        if (isIgnored(entry.name, splitIgnores)) continue;
+
         const fullPath = join(dirPath, entry.name);
 
-        if (settings.ignore.includes(entry.name)) continue;
-
         if (entry.isDirectory()) {
-            walkDirectory(fullPath);
+            fileCount += processDirectory(fullPath, stream, splitIgnores);
         } else if (entry.isFile()) {
-           const ext = extname(entry.name).replace('.', '');
-           
-            if (!isTextFile(fullPath) || settings.onlyContext.includes(ext)) {
-               addBinaryPlaceholder(fullPath);
-            } else {
-               addFileContent(fullPath);
-            }
+            addFileToStream(fullPath, stream);
+            fileCount++;
         }
+    }
+    return fileCount;
+};
+
+const addFileToStream = (filePath, stream) => {
+    const relativeName = normalizePath(filePath);
+    const ext = extname(filePath).replace('.', '') || 'txt';
+    
+    if (settings.onlyContext.includes(ext) || !isTextFile(filePath)) {
+        stream.write(`> ${relativeName}\n> [Binary/Context File] Type: ${ext} - Content omitted.\n\n---\n\n`);
+        return;
+    }
+
+    try {
+        const content = readFileSync(filePath, 'utf8').trim();
+        const quotes = ext === 'md' ? '"""' : '```';
+        stream.write(`> ${relativeName}\n\n${quotes}${ext}\n${content}\n${quotes}\n\n---\n\n`);
+    } catch (e) {
+        stream.write(`> ${relativeName}\n> [Error reading file]\n\n---\n\n`);
     }
 };
 
 const main = () => {
+    console.log(`Scanning: ${basePath}`);
+    
     const defaultOutput = join(
         os.homedir(),
         'Downloads',
         inputPath.replace(':', '').replace(/\\/g, '_') + '.md',
     );
-
     const outputFile = resolve(outputPath || defaultOutput);
-    walkDirectory(basePath);
-    writeFileSync(outputFile, lines.join('\n'), 'utf8');
-    console.log(`Context generated and saved to: ${outputFile}`);
+    const stream = createWriteStream(outputFile, { encoding: 'utf8' });
+
+    stream.write(`# Project Context: ${basename(basePath)}\n\n`);
+    
+    const fileCount = processDirectory(basePath, stream);
+
+    stream.write(`# Statistics\n\n- Total Files: ${fileCount}\n`);
+
+    stream.end(() => {
+        console.log(`Context generated and saved to: ${outputFile}`);
+    });
 };
 
 main();
