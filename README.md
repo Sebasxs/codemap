@@ -46,17 +46,18 @@ This script solves that problem by creating a single, comprehensive Markdown fil
 Once installed, you can run the `codemap` command from your terminal.
 
 ```bash
-codemap <inputPath> [outputPath]
+codemap <inputPath> [outputPath] [--ignore "file1,dir2,..."]
 ```
 
 -  `<inputPath>`: (Required) The path to the directory you want to export.
 -  `[outputPath]`: (Optional) The path where the final Markdown file will be saved. If not provided, it defaults to your Downloads folder.
+-  `[--ignore "file1,dir2,..."]`: (Optional) A comma-separated list of files and directories to ignore in the current run.
 
 ### Example
 
 ```bash
 # Export the 'my-project' directory to a markdown file
-codemap ./my-project
+codemap ./my-project --ignore "tests,package-lock.json,logs"
 ```
 
 Now you can open the `my-project.md` file and paste its content into your LLM of choice.

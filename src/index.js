@@ -4,9 +4,24 @@ import { resolve, relative, join, basename, extname } from 'node:path';
 import settings from '../settings.json' with { type: 'json' };
 import os from 'node:os';
 
-const [inputPath, outputPath] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const positionalArgs = [];
+const cliIgnoreList = [];
+
+for (let i = 0; i < args.length; i++) {
+    if ((args[i] === '--ignore' || args[i] === '-i') && args[i + 1]) {
+        const extras = args[i + 1].split(',').map(item => item.trim());
+        cliIgnoreList.push(...extras);
+        i++;
+    } else {
+        positionalArgs.push(args[i]);
+    }
+}
+
+const [inputPath, outputPath] = positionalArgs;
+
 if (!inputPath) {
-    throw new Error('A path is required as the first argument.');
+    throw new Error('A path is required as the first argument. Usage: codemap <path> [output] [--ignore "file1,dir2"]');
 }
 
 const basePath = resolve(inputPath);
@@ -34,9 +49,7 @@ const isTextFile = (filePath) => {
 
 const patternToRegex = (pattern) => {
     if (pattern.startsWith('#') || pattern.trim() === '') return null;
-    
     let escaped = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&');
-    
     escaped = escaped.replace(/\?/g, '.').replace(/\*/g, '.*');
     
     if (escaped.endsWith('/')) {
@@ -45,7 +58,6 @@ const patternToRegex = (pattern) => {
     if (escaped.startsWith('/')) {
         return new RegExp(`^${escaped.slice(1)}$`);
     }
-    
     return new RegExp(`^${escaped}$`);
 };
 
@@ -66,7 +78,8 @@ const parseGitIgnore = (dirPath) => {
 };
 
 const isIgnored = (name, ignorePatterns) => {
-    if (settings.ignore.includes(name)) return true;
+    if (settings.ignore.includes(name) || cliIgnoreList.includes(name)) return true;
+    
     if (name.startsWith('.env')) return true;
     const sensitiveExtensions = ['.pem', '.key', '.p12', '.pfx', '.cert', '.crt', '.csr'];
 
@@ -125,11 +138,14 @@ const addFileToStream = (filePath, stream) => {
 
 const main = () => {
     console.log(`Scanning: ${basePath}`);
+    if (cliIgnoreList.length > 0) {
+        console.log(`Extra ignores: ${cliIgnoreList.join(', ')}`);
+    }
     
     const defaultOutput = join(
         os.homedir(),
         'Downloads',
-        inputPath.replace(':', '').replace(/\\/g, '_') + '.md',
+        inputPath.replace(':', '').replace(/\\/g, '_').replace(/\//g, '_') + '.md',
     );
     const outputFile = resolve(outputPath || defaultOutput);
     const stream = createWriteStream(outputFile, { encoding: 'utf8' });
