@@ -6,12 +6,17 @@ import os from 'node:os';
 
 const args = process.argv.slice(2);
 const positionalArgs = [];
-const cliIgnoreList = [];
+const cliExcludeList = [];
+const cliIncludeList = [];
 
 for (let i = 0; i < args.length; i++) {
-    if ((args[i] === '--ignore' || args[i] === '-i') && args[i + 1]) {
+    if ((args[i] === '--exclude' || args[i] === '-e') && args[i + 1]) {
         const extras = args[i + 1].split(',').map(item => item.trim());
-        cliIgnoreList.push(...extras);
+        cliExcludeList.push(...extras);
+        i++;
+    } else if ((args[i] === '--include' || args[i] === '-i') && args[i + 1]) {
+        const extras = args[i + 1].split(',').map(item => item.trim());
+        cliIncludeList.push(...extras);
         i++;
     } else {
         positionalArgs.push(args[i]);
@@ -21,7 +26,7 @@ for (let i = 0; i < args.length; i++) {
 const [inputPath, outputPath] = positionalArgs;
 
 if (!inputPath) {
-    throw new Error('A path is required as the first argument. Usage: codemap <path> [output] [--ignore "file1,dir2"]');
+    throw new Error('A path is required as the first argument. Usage: codemap <path> [output] [--exclude "file1,dir2"] [--include "file1,dir2"]');
 }
 
 const basePath = resolve(inputPath);
@@ -78,7 +83,8 @@ const parseGitIgnore = (dirPath) => {
 };
 
 const isIgnored = (name, ignorePatterns) => {
-    if (settings.ignore.includes(name) || cliIgnoreList.includes(name)) return true;
+    if (cliIncludeList.includes(name)) return false;
+    if (settings.ignore.includes(name) || cliExcludeList.includes(name)) return true;
     
     if (name.startsWith('.env')) return true;
     const sensitiveExtensions = ['.pem', '.key', '.p12', '.pfx', '.cert', '.crt', '.csr'];
@@ -138,8 +144,11 @@ const addFileToStream = (filePath, stream) => {
 
 const main = () => {
     console.log(`Scanning: ${basePath}`);
-    if (cliIgnoreList.length > 0) {
-        console.log(`Extra ignores: ${cliIgnoreList.join(', ')}`);
+    if (cliExcludeList.length > 0) {
+        console.log(`Excludes: ${cliExcludeList.join(', ')}`);
+    }
+    if (cliIncludeList.length > 0) {
+        console.log(`Includes: ${cliIncludeList.join(', ')}`);
     }
     
     const defaultOutput = join(
